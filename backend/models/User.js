@@ -35,6 +35,10 @@ const userSchema=new mongoose.Schema(
         isLoggined:{
             type:Boolean,
             default:false
+        },
+        loginAttempts:{
+            type:Number,
+            default:0
         }
     },
     {
@@ -46,7 +50,7 @@ userSchema.methods.comparePassword=function(plain){
     return bcrypt.compare(plain,this.passwordHash)
 }
 
-userSchema.method.toSafeJSON=function(){
+userSchema.methods.toSafeJSON=function(){
     const obj = this.toObject({versionKey:false})
     delete obj.passwordHash
     return obj
