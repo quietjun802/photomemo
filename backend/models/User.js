@@ -4,47 +4,47 @@ const bcrypt = require("bcrypt");
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const userSchema = new mongoose.Schema(
-  {
-    email: {
-      type: String,
-      required: true,
-      lowercase: true,
-      trim: true,
-      match: [EMAIL_REGEX, "유효한 이메일"],
+const userSchema=new mongoose.Schema(
+    {
+        email:{
+            type:String,
+            required:true,
+            lowercase:true,
+            trim:true,
+            match:[EMAIL_REGEX,"유효한 이메일"]
+        },
+        passwordHash:{
+            type:String,
+            required:true
+        },
+        displayName:{
+            type:String,
+            trim:true,
+            default:""
+        },
+        role:{
+            type:String,
+            enum:["user","admin"],
+            default:"user",
+            index:true
+        },
+        isActive:{
+            type:Boolean,
+            default:true
+        },
+        isLoggined:{
+            type:Boolean,
+            default:false
+        },
+        loginAttempts:{
+            type:Number,
+            default:0
+        }
     },
-    passwordHash: {
-      type: String,
-      required: true,
-    },
-    displayName: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-    role: {
-      type: String,
-      enum: ["user", "admin"],
-      default: "user",
-      index: true,
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-    isLoggined: {   //
-      type: Boolean,
-      default: false,
-    },
-    loginAttempts: {
-      type: Number,
-      default: 0,
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
+    {
+        timestamps:true
+    }
+)
 
 userSchema.methods.comparePassword=function(plain){
     return bcrypt.compare(plain,this.passwordHash)

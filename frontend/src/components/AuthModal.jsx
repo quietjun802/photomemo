@@ -1,5 +1,5 @@
 import React from 'react'
-import "./styles/AuthModal.scss"
+import "./style/AuthModal.scss"
 const AuthModal = () => {
   return (
     <div>AuthModal</div>
