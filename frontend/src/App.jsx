@@ -1,17 +1,18 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route } from 'react-router-dom'
+import AuthPanel from './components/AuthPanel'
 import Landing from './pages/Landing'
-
+import './App.scss'
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <div>
-      <Landing/>
+    <div className='page'>
+      <Routes>
+        <Route path='/' element={<Landing />} />
+        
+      </Routes>
     </div>
   )
 }
+
 
 export default App
