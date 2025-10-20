@@ -11,18 +11,21 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
+
         const token = localStorage.getItem('token')
         if (token) config.headers.Authorization = `Bearer ${token}`
         return config
-    },(error)=>Promise.reject(error)
+
+
+    }, (error) => Promise.reject(error)
 )
 
 api.interceptors.response.use(
-    (res)=>res,
-    (err)=>{
+    (res) => res,
+    (err) => {
         const code = err?.response?.status
 
-        if(code==401 || code==403){
+        if (code == 401 || code == 403) {
             localStorage.removeItem('token')
             localStorage.removeItem('user')
         }
@@ -30,53 +33,46 @@ api.interceptors.response.use(
     }
 )
 
-export function getErrorMessage(error, fallback='요청 실패'){
+export function getErrorMessage(error, fallback = '요청 실패') {
     return error.response?.data?.message || error.message || fallback
 }
 
-export async function register({email, password, displayname}){
-
-    const {data}=await api.post('/api/auth/register',{
+export async function register({ email, password, displayname }) {
+    const { data } = await api.post('/api/auth/register', {
         email,
         password,
         displayname
     })
 
     return data
-
 }
 
-export async function register({email, password}){
-
-    const {data}=await api.post('/api/auth/login',{
+export async function login({ email, password }) {
+    const { data } = await api.post('/api/auth/login', {
         email,
         password
     })
 
     return data
-
 }
-export async function fetchMe(){
-    const {data}=await api.get('/api/auth/me')
 
+export async function fetchMe() {
+    const { data } = awaitapi.get("/api/auth/me")
     return data
 }
 
-export async function logout(){
-    return await api.post('/api/auth/logout')
+export async function logout() {
+    return await api.post("/api/auth/logout")
 }
 
-export function saveAuthToStorage({user,token}){
-
-    if(user) localStorage.setItem('user',JSON.stringify(user))
-    if(token) localStorage.setItem('token',token)
-
+export function saveAuthToStorage({ user, token }) {
+    if (user) localStorage.setItem("user", JSON.stringify(user))
+    if (token) localStorage.setItem("token", token)
 }
 
-export function clearAuthStorage(){
-    localStorage.removeItem('user')
-    localStorage.removeItem('token')
+export function clearAuthStorage() {
+    localStorage.removeItem("user")
+    localStorage.removeItem("token")
 }
-
 
 export default api
