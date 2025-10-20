@@ -3,7 +3,18 @@ import { useState, useEffect } from 'react'
 import { Routes, Route,Navigate } from 'react-router-dom'
 import AuthPanel from './components/AuthPanel'
 import Landing from './pages/Landing'
-import api from "./api/client"
+import Header from './components/Header'
+import ProtectRoute from './components/ProtectRoute'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import UserDashboard from './pages/user/UserDashboard'
+import {
+  fetchMe as apiFetchMe,
+  logout as apiLogout,
+  saveAuthToStorage,
+  clearAuthStorage
+} from "./api/client"
+
+
 function App() {
 
   const [user, setUser] = useState(() => {
