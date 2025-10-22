@@ -6,12 +6,13 @@
     align-items: center;
     justify-content: center;
     .am-panel{
-        background-color: var(--bg);
+        background-color: var(--surface);
         position: relative;
         width: min(92vw,42rem);
         border-radius: var(--radius-l);
         box-shadow: 0 1rem 3rem rgb(0, 0, 0, 0.321);
         padding: 2rem;
+        color: var(--text);
 
         .am-tabs{
             display: flex;
