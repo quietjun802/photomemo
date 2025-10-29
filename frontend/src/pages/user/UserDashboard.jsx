@@ -4,6 +4,7 @@ import UploadForm from './UploadForm'
 import "./style/UserDashboard.scss"
 import { uploadToS3 } from '../../api/postApi'
 import { usePosts } from '../../hooks/usePosts'
+import UserPostList from './UploadForm'
 
 const UserDashboard = () => {
     const [search, setSearch] = useState("")
@@ -46,7 +47,12 @@ const UserDashboard = () => {
                     open={open} 
                     onClose={() => setOpen(false)} />
                 )}
-                <FileList />
+                <FileList 
+                items={items}
+                loading={loading}
+                load={load}
+                search={search}
+                />
             </div>
         </section>
     )
