@@ -3,16 +3,16 @@
     background-color: var(--surface-alt);
     display: flex;
     align-items: center;
-    
+
     .inner {
         background-color: var(--bg);
         padding: 3rem;
         border-radius: var(--radius-l);
         text-align: left;
-        
+
         .admin-head {
             text-align: center;
-            
+
             p {
                 color: var(--muted);
                 margin: .8rem 0 1.6rem;
@@ -27,6 +27,7 @@
             padding: 2.4rem;
             text-align: left;
             margin: 2.4rem auto;
+
 
 
 
