@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
+const mongoose =require('mongoose')
 const Post = require('../models/Posts')
-const User = require('../models/User')
+const User= require('../models/User')
 
 (async()=>{
     await mongoose.connect(process.env.MONGO_URI)
@@ -11,9 +11,10 @@ const User = require('../models/User')
 
     for(const p of posts){
         p.fileUrl= [p.fileUrl].filter(Boolean)
-        if(!p.status) p.status = 'approved'
+        if(!p.status) p.status ='approved'
         await p.save()
     }
+
     await User.updateMany(
         {role:{$exists:false}},
         {

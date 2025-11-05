@@ -1,5 +1,5 @@
 exports.requireRole=(role)=>(req, res, next)=>{
-    const r= req.user?.role
+    const r=req.user?.role
 
     if(r===role) return next()
 

@@ -35,8 +35,7 @@ const userSchema=new mongoose.Schema(
             default:true
         },
         lastLoginAttempt:{
-            type:Date,
-            default:0
+            type:Date
         },
         failedLoginAttempts:{
             type:Number,
@@ -56,6 +55,7 @@ userSchema.method.setPassword= async function(plain){
     const salt=await bcrypt.genSalt(10)
     this.passwordHash= await bcrypt.hash(plain,salt)
 }
+
 
 userSchema.methods.toSafeJSON=function(){
     const obj =this.toObject({versionKey:false})

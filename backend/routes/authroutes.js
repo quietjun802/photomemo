@@ -5,7 +5,8 @@ const bcrypt = require("bcrypt")
 const User = require("../models/User")
 const { authenticateToken } = require('../middlewares/auth'); // ✅ 변경됨: auth → authenticateToken 명시적 미들웨어 사용
 const LOCK_MAX = 5
-const LOCKOUT_DURATION_MS = 10 * 60 * 1000
+const LOCKOUT_DURATION_MS = 10*60*1000
+
 
 function makeToken(user) {
     return jwt.sign(
@@ -61,35 +62,39 @@ router.post("/register", async (req, res) => {
 
     }
 })
+
+
 router.post("/login", async (req, res) => {
     try {
         // 1) req.body에서 email, password를 꺼낸다(기본값은 빈 문자열).
-        const email = String(req.body?.email || "").toLowerCase()
-        const password = String(req.body?.password ?? "")
-
+        const email = String(req.body?.email|| "").toLowerCase()
+        const password = String(req.body?.password?? "")
+        
         const invalidMsg = { message: "이메일 또는 비밀번호가 올바르지 않습니다." };
-
-        if (!email || !password) {
+        
+        
+        if(!email || !password){
             return res.status(400).json({
                 ...invalidMsg,
-                remainingAttempts: null,
-                locked: false
+                remainingAttempts:null,
+                locked:false
             })
         }
 
-
+        
+        
+        
         //  2) 이메일을 소문자로 바꿔 활성화된 유저(isActive: true)만 조회한다. .findOne() /.toLowerCase()
 
-        const user = await User.findOne({ email }).select(
-            "+passwordHash +role +isActive +failedLoginAttempts +lastLoginAttempt"
+        const user = await User.findOne({email}).select(
+              "+passwordHash +role +isActive +failedLoginAttempts +lastLoginAttempt"
         )
-
 
 
 
         // 3 사용자 없음
         if (!user) {
-            return res.status(400).json({
+            return res.status(401).json({
                 ...invalidMsg,
                 loginAttempts: null,
                 remainingAttempts: null,
@@ -97,43 +102,45 @@ router.post("/login", async (req, res) => {
             })
         }
         // 4 잠금 해제 로직
-        if (!user.isActive) {
-            const last = user.lastLoginAttempt ? user.lastLoginAttempt.getTime() : 0
-            const passed = Date.now() - last;
-            if (passed > LOCKOUT_DURATION_MS) {
-                user.isActive = true
-                user.failedLoginAttempts = 0
-                user.lastLoginAttempt = null
+
+        if(!user.isActive){
+            const last = user.lastLoginAttempt? user.lastLoginAttempt.getTime():0
+            const passed = Date.now() -last;
+            if(passed>LOCKOUT_DURATION_MS){
+                user.isActive=true
+                user.failedLoginAttempts=0
+                user.lastLoginAttempt=null
                 await user.save()
             }
         }
         // 5 여전히 잠금 상태면 로그인 불가
-        if (!user.isActive) {
-            const last = user.lastLoginAttempt ? user.lastLoginAttempt.getTime() : 0
-            const remainMs = Math.max(0, LOCKOUT_DURATION_MS - (Date.now() - last))
-            const remainMin = Math.ceil(remainMs / 60000)
+        if(!user.isActive){
+             const last = user.lastLoginAttempt? user.lastLoginAttempt.getTime():0
+             const remainMs= Math.max(0, LOCKOUT_DURATION_MS-(Date.now()-last))
+             const remainMin=Math.ceil(remainMs/60000)
 
-            return res.status(423).json({
+             return res.status(423).json({
                 message:
-                    remainMs > 0
-                        ? `계정이 잠금 상태입니다 약 ${remainMin}분후 다시 시도해 주세요`
-                        : "계정이 잠금 상태입니다. 관리자에게 문의 하세요",
-                locked: true
-            })
+                    remainMs>0
+                    ? `계정이 잠금 상태입니다 약 ${remainMin}분후 다시 시도해 주세요`
+                    :"계정이 잠금 상태입니다. 관리자에게 문의 하세요",
+                locked:true
+             })
+
         }
 
         // 6)비밀번호 검증 (User 모델에 comparePassword 메서드가 있다고 가정)
         const ok = 
         typeof user.comparePassword==='function'
-        ? await user.comparePassword(password)
-        : await bcrypt.compare(password, user.passwordHash || "")
+         ? await user.comparePassword(password)
+         : await bcrypt.compare(password, user.passwordHash || "")
 
         // 7)비밀번호 불일치
         if (!ok) {
             user.failedLoginAttempts += 1
             user.lastLoginAttempt= new Date()
 
-            // 7-1 최대 횟수 초과 계정 장금
+            // 최대 횟수 초과 계정 잠금
             if (user.failedLoginAttempts >= LOCK_MAX) {
                 user.isActive = false//잠금처리
 
@@ -151,7 +158,10 @@ router.post("/login", async (req, res) => {
             await user.save()
 
 
-            // 7-2 아직 잠금 전 400 현재 실패 남은 횟수 안내
+
+
+
+            //  아직 잠금 전 400 현재 실패 남은 횟수 안내
             await user.save()
             return res.status(400).json({
                 ...invalidMsg,
@@ -162,7 +172,7 @@ router.post("/login", async (req, res) => {
         }
 
 
-        // 8 로그인 성공: 실패 카운트 초기화 접속 정보 업데이트
+        // 8.로그인 성공: 실패 카운트 초기화 접속 정보 업데이트
 
         user.failedLoginAttempts = 0
         user.lastLoginAttempt = new Date()
@@ -171,6 +181,7 @@ router.post("/login", async (req, res) => {
 
         // 9 JWT 발급 및 쿠키 설정
         const token = makeToken(user)
+
 
         res.cookie('token', token, {
             httpOnly: true,
@@ -250,7 +261,7 @@ router.post("/logout", async (req, res) => {
             httpOnly: true,
             sameSite: "lax",
             secure: process.env.NODE_ENV === "production",
-            path: '/'
+            path:'/'
         })
         return res.status(200).json({ message: '로그아웃 성공' })
     } catch (error) {
