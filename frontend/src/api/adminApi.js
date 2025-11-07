@@ -5,7 +5,7 @@ export const fetchAdminStats = async () => {
  return data; // today, pending, reports
 };
 
-export const fetchAdminPosts = async () => {
+export const fetchAdminPosts = async (params={}) => {
  const { page = 1, size = 20, status, q } = params;
 
  const { data } = await api.get("/api/admin/posts", {
@@ -15,7 +15,7 @@ export const fetchAdminPosts = async () => {
  return Array.isArray(data) ? data : [];
 };
 
-export const fetchAdminUsers = async () => {
+export const fetchAdminUsers = async (params={}) => {
  const { page = 1, size = 20, status, q } = params;
  const { data } = await api.get("/api/admin/users", {
   params: { page, size, status, q },
