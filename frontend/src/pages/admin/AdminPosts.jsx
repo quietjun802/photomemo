@@ -1,10 +1,13 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { fetchAdminPosts, patchAdminPost } from "../../api/adminApi";
 import AdminPostList from "../../components/admin/AdminPostsList";
 import AdminPostFilter from "../../components/admin/AdminPostFilter";
+import { getUserId } from "../../util/getUserId";
+import useAdminFiltered from "../../hooks/useAdminFiltered";
+
 const AdminPosts = () => {
-  const [list, setList] = useState([]);
-  const [query, setQuery] = useState({
+  const [items, setItems] = useState([]);
+  const [filter, setFilter] = useState({
     page: 1,
     size: 10,
     status: "",
@@ -12,46 +15,41 @@ const AdminPosts = () => {
     user: "",
   });
 
-  useEffect(() => {
-    (async () => {
-      const items = await fetchAdminPosts(query);
-      setList(items);
-    })();
-  }, [query]);
+  const getPosts = useCallback(async () => {
+    const res = await fetchAdminPosts();
+    setItems(res)
+  }, [])
 
+  useEffect(() => { getPosts() }, [getPosts]);
 
-  const handleApprove= async(id)=>{
-    try {
-      const updated= await patchAdminPost(id,{status:'approved'})
+  const normalizedItems = useMemo(
+    () => items.map(it => ({ ...it, _userId: getUserId(it.user) })),
+    [items]
+  )
 
-      setList((prev)=>prev.map((it)=>(it._id===id? updated:it)))
-    } catch (error) {
-      console.error('승인 처리 실패',error)
-      
-    }
+  const filteredItem = useAdminFiltered(normalizedItems, filter, {
+    q: 'title',
+    user: '_userId',
+    status: 'status'
+  })
+
+  const handleApprove = async (id) => {
+    const updated = await patchAdminPost(id, { status: "approved" })
+    setItems(prev => prev.map(it => (it._id === id ? updated : it)))
   }
 
   const handleReject = async (id) => {
-  try {
-    const updated = await patchAdminPost(id, { status: "rejected" });
-    setList((prev) =>
-      prev.map((it) => (it._id === id ? updated : it))
-    );
-  } catch (error) {
-    console.error("거절 처리 실패", error);
+    const updated = await patchAdminPost(id, { status: "rejected" })
+    setItems(prev => prev.map(it => (it._id === id ? updated : it)))
   }
-}
 
   return (
-    <div>
-      <AdminPostFilter
-      value={query}
-      onChange={setQuery}
-      />
-      <AdminPostList  
-      items={list} 
-      onApprove={handleApprove}
-      onReject={handleReject} 
+    <div className="inner">
+      <AdminPostFilter value={filter} onChange={setFilter} />
+      <AdminPostList
+        items={filteredItem}
+        onApprove={handleApprove}
+        onReject={handleReject}
       />
     </div>
   );

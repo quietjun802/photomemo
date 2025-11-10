@@ -1,7 +1,7 @@
 import React from 'react'
 import { formatYMD } from '../../util/formatYMD'
 import './style/AdminUserList.scss'
-const AdminUserList = ({items=[]}) => {
+const AdminUserList = ({items=[],onChangeLock,onChangeRole}) => {
   return (
     <ul className='admin-list'>
         <li>
@@ -19,8 +19,14 @@ const AdminUserList = ({items=[]}) => {
                 <span>{it.email}</span>
                 <span>{it.displayName?? "-"}</span>
                 <span>{it.role}</span>
-                <span>{it.isActive}</span>
+                <span>{it.isActive? "활성":"비활성"}</span>
                 <span>{it.createdAt? formatYMD(it.createdAt):""}</span>
+                <button className='btn' onClick={()=>onChangeRole(it._id,it.status)}>
+                    {it.role==='admin'?"관리자 해제":"관리자 지정"}
+                </button>
+                <button className='btn' onClick={()=>onChangeLock(it._id,it.isActive)}>
+                    {it.isActive? "활성화":"비활성화"}
+                </button>
             </li>
         ))}
 
